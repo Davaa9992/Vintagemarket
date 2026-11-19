@@ -1,0 +1,6 @@
+export { default as UserService } from './user.service'
+export { default as CategoryService } from './category.service'
+export { default as ProductService } from './product.service'
+export { default as OrderService } from './order.service'
+export { default as ContactService } from './contact.service'
+export { default as ShopService } from './shop.service'

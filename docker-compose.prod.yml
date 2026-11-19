@@ -1,0 +1,72 @@
+# Production: нэг сервер дээр MongoDB + backend + front end + Caddy (HTTPS).
+#   cp .env.production.example .env   # утгуудаа бөглөнө
+#   docker compose -f docker-compose.prod.yml up --build -d
+#   docker compose -f docker-compose.prod.yml run --rm back node dist/src/scripts/seed.js
+# Mongo болон backend гадагш порт нээхгүй, зөвхөн Caddy 80/443-аар.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 20
+
+  back:
+    build: ./vintage-back
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NODE_PORT: 5000
+      NODE_HOST: https://${DOMAIN:?DOMAIN-оо .env-д бичнэ үү}
+      FRONTEND_HOST: https://${DOMAIN}
+      CORS_ALLOWED_ORIGINS: https://${DOMAIN},https://www.${DOMAIN}
+      MONGODB_PROD_URI: mongodb://mongo:27017/vintage
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET-ээ .env-д бичнэ үү}
+      COOKIE_SECURE: "true"
+      ADMIN_PHONE: ${ADMIN_PHONE:?ADMIN_PHONE-оо .env-д бичнэ үү}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD-оо .env-д бичнэ үү}
+      # Хоосон бол жишээ дэлгүүр үүсгэхгүй
+      SEED_SELLER_PASSWORD: ${SEED_SELLER_PASSWORD:-}
+    volumes:
+      - uploads:/app/uploads
+
+  front:
+    build:
+      context: ./vintage-front
+      args:
+        NEXT_PUBLIC_API_URL: https://${DOMAIN}/v1
+    restart: unless-stopped
+    depends_on:
+      - back
+    environment:
+      API_SERVER_URL: http://back:5000/v1
+      COOKIE_SECURE: "true"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - front
+      - back
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  mongo-data:
+  uploads:
+  caddy-data:
+  caddy-config:

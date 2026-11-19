@@ -1,0 +1,57 @@
+# Vintage Mongolia: MongoDB + backend + front end нэг командаар.
+#   docker compose up --build -d
+#   docker compose run --rm back node dist/src/scripts/seed.js   # жишээ өгөгдөл (нэг удаа)
+#   Сайт: http://localhost:3000   API: http://localhost:5000/v1
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 20
+
+  back:
+    build: ./vintage-back
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NODE_PORT: 5000
+      # Зургийн линк browser-оос нээгдэх хаяг
+      NODE_HOST: http://localhost:5000
+      FRONTEND_HOST: http://localhost:3000
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      MONGODB_PROD_URI: mongodb://mongo:27017/vintage
+      JWT_SECRET: ${JWT_SECRET:-change_me_to_a_long_random_string}
+      COOKIE_SECURE: "false"
+      ADMIN_PHONE: ${ADMIN_PHONE:-99000000}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      SEED_SELLER_PASSWORD: ${SEED_SELLER_PASSWORD:-demo1234}
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads:/app/uploads
+
+  front:
+    build:
+      context: ./vintage-front
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/v1
+    restart: unless-stopped
+    depends_on:
+      - back
+    environment:
+      API_SERVER_URL: http://back:5000/v1
+      # http://localhost дээр тул secure cookie биш
+      COOKIE_SECURE: "false"
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo-data:
+  uploads:

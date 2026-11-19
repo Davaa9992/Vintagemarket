@@ -1,0 +1,17 @@
+# Нэг домэйн: /v1 ба /uploads -> backend, бусад нь front end. HTTPS-ийг Caddy автоматаар (Let's Encrypt) авна.
+{$DOMAIN} {
+	encode zstd gzip
+
+	@api path /v1/* /uploads/* /status
+	handle @api {
+		reverse_proxy back:5000
+	}
+
+	handle {
+		reverse_proxy front:3000
+	}
+}
+
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

@@ -1,0 +1,16 @@
+node_modules
+dist/
+logs
+coverage
+.nyc_output/
+.env
+*.log
+.DS_Store
+Thumbs.db
+.idea
+
+# Админы upload хийсэн зургууд
+uploads/
+
+# npm ашигладаг тул (package-lock.json)
+yarn.lock

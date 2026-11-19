@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* Vintage Mongolia өнгө, үсгийн токенууд */
+@theme inline {
+  --color-cream: #f4efe6;
+  --color-paper: #ece5d8;
+  --color-field: #fbf8f2;
+  --color-line: #d6ccba;
+  --color-line-soft: #e2d9c9;
+  --color-edge: #bdb09b;
+  --color-ink: #2a2019;
+  --color-ink-2: #4a3e33;
+  --color-muted: #5e5145;
+  --color-faint: #6b5d50;
+  --color-olive: #556036;
+  --color-olive-dark: #465029;
+  --color-olive-soft: #e3e6d3;
+  --color-olive-ink: #3f4826;
+  --color-brick: #a5432e;
+  --color-brick-soft: #f2ddd5;
+  --color-brick-ink: #7a2e1c;
+  --color-sand: #e8dcc6;
+  --color-sand-ink: #4e3a22;
+  --color-gold: #c9b98f;
+  --color-night: #3b2e24;
+
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-cream);
+  font-variant-numeric: lining-nums;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-olive);
+  outline-offset: 2px;
+}
+
+@utility container-vm {
+  @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6;
+}
+
+@utility btn {
+  @apply inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-[2px] border px-6 text-sm font-semibold tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn border-olive bg-olive text-[#f7f3ea] hover:border-olive-dark hover:bg-olive-dark hover:text-white;
+}
+
+@utility btn-outline {
+  @apply btn border-ink bg-transparent text-ink hover:bg-ink hover:text-cream;
+}
+
+@utility btn-cream {
+  @apply btn border-cream bg-cream text-ink hover:bg-white;
+}
+
+@utility link-caps {
+  @apply border-b border-current pb-0.5 text-xs font-bold tracking-[0.12em] uppercase;
+}
+
+@utility eyebrow {
+  @apply text-xs font-bold tracking-[0.14em] uppercase;
+}
+
+@utility field {
+  @apply min-h-12 w-full rounded-[2px] border border-edge bg-field px-3.5 text-[15px] font-medium text-ink placeholder:text-faint;
+}
+
+@utility label {
+  @apply flex flex-col gap-1.5 text-[13px] font-semibold;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+}
+
